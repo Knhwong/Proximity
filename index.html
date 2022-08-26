@@ -108,6 +108,10 @@
                         input.disabled = false;
                         inputButton.disabled = false;
                         console.log(`Longitude: ${longitude}$ \n Latitude: ${latitude}`)
+                        socket.emit('LongLat', {
+                            'longitude': longitude,
+                            'latitude': latitude,
+                        })
                     })
                 } else {
                     input.disabled = true;
