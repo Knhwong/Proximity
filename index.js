@@ -5,16 +5,15 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-const { dbo } = require('./db.js')
 const { MongoClient } = require('mongodb');
 
 const url = "mongodb://localhost:27017";
 const dbName = 'GeolocationalChat'
 const client = new MongoClient(url);
 
-var db;
-var userCollection;
-var messages;
+let db;
+let userCollection;
+let messages;
 
 
 
@@ -37,7 +36,7 @@ io.on('connection', (socket) => {
 
         const err = await messages.insertOne({
             uid: socket.id,
-            message: msg,
+            message: msg.msg,
         })
         console.log("Inserted Message =>", err);
 
@@ -52,8 +51,9 @@ io.on('connection', (socket) => {
 server.listen(3000, async() => {
     await client.connect();
     console.log("Connected to Database")
-    const db = client.db('GeolocationalChat')
-        //userCollection = db.collection('userCollection')
+    db = client.db('GeolocationalChat')
+    userCollection = db.collection('userCollection')
+    messages = db.collection('messages')
 
     console.log("Listening on Port 3000")
 });

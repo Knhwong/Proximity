@@ -1,0 +1,18 @@
+{
+  "name": "proximity",
+  "version": "1.0.0",
+  "description": "Geolocational Based Chat (\"Shout\" to your local area!)",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.18.1",
+    "mongodb": "^4.9.0",
+    "nodemon": "^2.0.19",
+    "socket.io": "^4.5.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "corimaith",
+  "license": "ISC"
+}
