@@ -1,0 +1,7 @@
+#On Connect - Get User ID + Coordinates
+#Store in MongoDB
+#Find Closest Neigbours
+#Update Neighbours
+#Join Room - Display Neighbours in Frontend
+#Radius of 15 meters
+

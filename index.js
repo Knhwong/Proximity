@@ -5,7 +5,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-const db = require("./db.js")
+const { db } = require("./dbo.js")
 
 
 app.get('/', (req, res) => { res.sendFile(__dirname + '/index.html') })
@@ -33,6 +33,7 @@ io.on('connection', (socket) => {
 })
 
 server.listen(3000, async() => {
-    db.dbo.sayHello();
+    await db.connect();
+    await db.ShowAll();
     console.log("Listening on Port 3000")
 });
