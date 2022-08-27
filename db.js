@@ -69,8 +69,14 @@ async function main() {
 //    .then(console.log)
 //    .catch(console.error)
 //    .finally(() => client.close());
+class dbo {
+    sayHello() {
+        console.log("Sup bro")
+    }
+}
 
-export function sum(...args) {
-    log('sum', args);
-    return args.reduce((num, tot) => tot + num);
+module.exports.dbo = new dbo()
+
+module.exports.sum = function sum(...args) {
+    console.log("Hello World")
 }
