@@ -10,6 +10,7 @@ class db {
                 await this.client.connect()
                 this.db = this.client.db('geoPoints');
                 this.collection = this.db.collection('users')
+                this.messages = this.db.collection('messages')
             } catch (err) {
                 console.error("Error: ", err);
             }
@@ -28,13 +29,13 @@ class db {
         try {
             if (90 >= user.longitude >= -90 && 180 >= user.latitude >= -180) {
                 var geoUser = {
-                    uid: user.uid,
+                    id: user.id,
                     loc: {
                         type: "Point",
                         coordinates: [user.longitude, user.latitude]
                     }
                 }
-                const info = await this.collection.updateOne({ uid: user.uid }, {
+                const info = await this.collection.updateOne({ id: user.id }, {
                         $set: geoUser
                     }, {
                         upsert: true
@@ -42,11 +43,36 @@ class db {
 
                 );
                 console.log('Insertion: ', info)
+                return geoUser;
             } else {
                 throw "Invalid Longitude or Latitude"
             }
         } catch (err) {
             console.error("Insertion Error: ", err);
+        }
+    }
+
+    async InsertMessage(user, message, time) {
+        try {
+            const res = await this.messages.InsertOne({
+                id: user.id,
+                longitude: user.longitude,
+                latitude: user.latitude,
+                msg: message,
+                timestamp: time
+            })
+            console.log(`Inserted Message "${message}": `, res);
+        } catch (err) {
+            console.error("Message Insertion Error: ", err)
+        }
+    }
+
+    async Remove(user) {
+        try {
+            await this.collection.deleteOne({ id: user.id })
+            console.log("Deleted User: ", user.id);
+        } catch (err) {
+            console.error("Deletion Error: ", err)
         }
     }
 
@@ -57,14 +83,14 @@ class db {
                 loc: {
                     $near: {
                         $geometry: geoUser.loc,
-                        $maxDistance: 50,
+                        $maxDistance: range,
                         $minDistance: 0.1
                     }
                 }
             }).toArray()
             const formattedNearest = nearest.map((u) => {
                 return {
-                    uid: u.uid,
+                    id: u.id,
                     longitude: u.loc.coordinates[0],
                     latitude: u.loc.coordinates[1]
                 }
@@ -77,7 +103,7 @@ class db {
 
     async Find(user) {
         try {
-            const foundUser = await this.collection.findOne({ uid: user.uid });
+            const foundUser = await this.collection.findOne({ id: user.id });
             return foundUser;
         } catch (err) {
             console.error("Find: ", err)
