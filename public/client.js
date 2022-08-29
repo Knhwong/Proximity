@@ -1,53 +1,53 @@
-async function main() {
-    const form = document.getElementById('form');
-    const input = document.getElementById('input');
-    const inputButton = document.getElementById("inputButton");
-
-    input.disabled = true;
-    inputButton.disabled = true;
-    var longitude;
-    var latitude;
-    await getLocation(longitude, latitude);
-    const socket = io();
+let longitude;
+let latitude;
 
 
-    console.log(`Longitude: ${longitude}$ \n Latitude: ${latitude}`)
-    socket.emit('LongLat', {
-        'longitude': longitude,
-        'latitude': latitude,
-    })
+const form = document.getElementById('form');
+const input = document.getElementById('input');
+const inputButton = document.getElementById("inputButton");
 
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        if (input.value) {
-            socket.emit('chat message', {
-                'msg': input.value,
-                "long": longitude,
-                "lati": latitude,
-                "timestamp": new Date()
-            });
-            input.value = '';
-        }
-    });
-
-    socket.on('chat message', function(msg) {
-        var item = document.createElement('li');
-        item.textContent = msg;
-        messages.appendChild(item);
-        window.scrollTo(0, document.body.scrollHeight);
-    });
-}
+input.disabled = true;
+inputButton.disabled = true;
+const socket = io();
+getLocation();
 
 
-async function getLocation(longitude, latitude) {
+form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (input.value) {
+        socket.emit('chat message', {
+            'msg': input.value,
+            "long": longitude,
+            "lati": latitude,
+            "timestamp": new Date()
+        });
+        input.value = '';
+    }
+});
+
+socket.on('chat message', function(msg) {
+    var item = document.createElement('li');
+    item.textContent = msg;
+    messages.appendChild(item);
+    window.scrollTo(0, document.body.scrollHeight);
+});
+
+
+
+function getLocation() {
     try {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition((position) => {
                 longitude = position.coords.longitude;
                 latitude = position.coords.latitude;
-                console.log(`Longitude: ${longitude}$ \n Latitude: ${latitude}`)
                 input.disabled = false;
                 inputButton.disabled = false;
+
+                console.log(`Longitude: ${longitude}$ \n Latitude: ${latitude}`)
+                socket.emit('LongLat', {
+                    'longitude': longitude,
+                    'latitude': latitude,
+                })
             })
         } else {
             input.disabled = true;
@@ -58,5 +58,3 @@ async function getLocation(longitude, latitude) {
         console.error(`${error}`)
     }
 }
-
-main();
