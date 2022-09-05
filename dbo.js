@@ -35,14 +35,8 @@ class db {
                         coordinates: [user.longitude, user.latitude]
                     }
                 }
-                const info = await this.collection.updateOne({ id: user.id }, {
-                        $set: geoUser
-                    }, {
-                        upsert: true
-                    }
-
-                );
-                console.log('Insertion: ', info)
+                const info = await this.collection.updateOne({ id: user.id }, { $set: geoUser }, { upsert: true });
+                //console.log('Insertion: ', info)
                 return geoUser;
             } else {
                 throw "Invalid Longitude or Latitude"
@@ -84,11 +78,12 @@ class db {
                     $near: {
                         $geometry: geoUser.loc,
                         $maxDistance: range,
-                        $minDistance: 0.1
+                        $minDistance: 0
                     }
                 }
             }).toArray()
             const formattedNearest = nearest.map((u) => {
+                //console.log(u.id);
                 return {
                     id: u.id,
                     longitude: u.loc.coordinates[0],

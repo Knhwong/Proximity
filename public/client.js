@@ -4,6 +4,7 @@ let latitude;
 
 const form = document.getElementById('form');
 const input = document.getElementById('input');
+const connect = document.getElementById('connect');
 const inputButton = document.getElementById("inputButton");
 
 input.disabled = true;
@@ -11,8 +12,17 @@ inputButton.disabled = true;
 const socket = io();
 getLocation();
 
+connect.addEventListener('click', () => {
+    console.log("Umm");
+    socket.emit('connectGeo', { "long": longitude, "lat": latitude })
+    console.log(`Connecting: ${longitude} ${latitude}`)
+})
 
-form.addEventListener('submit', function(e) {
+socket.on('connectGeo', (res) => {
+    console.log(res)
+})
+
+form.addEventListener('submit', (e) => {
     e.preventDefault();
     if (input.value) {
         socket.emit('chat message', {
@@ -25,7 +35,8 @@ form.addEventListener('submit', function(e) {
     }
 });
 
-socket.on('chat message', function(msg) {
+
+socket.on('chat message', (msg) => {
     var item = document.createElement('li');
     item.textContent = msg;
     messages.appendChild(item);
