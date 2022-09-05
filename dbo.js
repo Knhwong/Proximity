@@ -70,6 +70,14 @@ class db {
         }
     }
 
+    async RemoveAll() {
+        try {
+            await this.collection.deleteMany({})
+        } catch (err) {
+            console.error("RemoveAll Error:", err)
+        }
+    }
+
     async FindNearest(user, range) {
         try {
             const geoUser = await this.Find(user);

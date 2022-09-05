@@ -34,38 +34,13 @@ io.on('connection', (socket) => {
         socket.longitude = res.long;
         socket.latitude = res.lat;
         const user = await db.InsertOrUpdate(socket);
-
-
-
-        // We use an array instead of joining rooms to more easily deal with users moving out of range or disconnecting
-        // nearestSockets will be constantly updating, thus removing them rather than requiring the socket to manually disconnect.
-
         const nearest = await db.FindNearest(user, 100);
 
-        await Promise.all(nearest.map(async(user) => {
-            const ss = await io.in(user.id).fetchSockets();
-            ss.forEach(s => {
-                s.join(socket.id)
-                console.log(`${s.id} is connected to ${socket.id}`);
-            })
-        }))
 
-
-
-
-        const selfCheck = await io.in(socket.id).fetchSockets();
-        console.log("Self ID is " + selfCheck[0].id);
-
-        //Apparently forEach dosen't work with running interior asyncs...
         /*
-        for (const user of nearest) {
-            console.log("Fetching socket " + user.id)
-            const s = await io.in(user.id).fetchSockets();
-            s.join(socket.id)
-            console.log(`${s.id} is connected to ${socket.id}`);
-        }*/
-
-
+        If we use Joining to Rooms, we will need to backtrack to leave Rooms if we get out of range
+        Hence why just setting the entire array of nearestSockets is alot more hassle free.
+        */
 
         socket.nearestSockets = nearest.map((user) => { return user.id })
         console.log(`Nearest Sockets to ${socket.id} are: ${socket.nearestSockets}`);
@@ -76,14 +51,13 @@ io.on('connection', (socket) => {
 
     socket.on('chat message', async(msg) => {
 
-        socket.to(socket.id).emit('chat message', msg.msg);
-        //io.emit('chat message', msg.msg);
+        //NearestSockets contains self so you don't need to do socket.emit here.
+        socket.to(socket.nearestSockets).emit('chat message', msg.msg);
         //await db.InsertMessage(socket, msg.msg, msg.timestamp)
     });
 
 
     socket.on('disconnect', async() => {
-
         await db.Remove(socket)
         console.log('User Disconnected ' + socket.id);
     });
@@ -92,5 +66,7 @@ io.on('connection', (socket) => {
 server.listen(3000, async() => {
     await db.connect();
     await db.ShowAll();
+    //Clear Cache
+    await db.Remove({})
     console.log("Listening on Port 3000")
 });
