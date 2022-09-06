@@ -53,6 +53,7 @@ io.on('connection', (socket) => {
 
         //NearestSockets contains self so you don't need to do socket.emit here.
         socket.to(socket.nearestSockets).emit('chat message', msg.msg);
+        socket.emit('chat message', msg.msg);
         //await db.InsertMessage(socket, msg.msg, msg.timestamp)
     });
 
