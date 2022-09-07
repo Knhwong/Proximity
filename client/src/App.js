@@ -1,5 +1,5 @@
 import './App.css';
-import React, { useState } from 'react';
+import React, { useState} from 'react';
 
 
 
@@ -16,9 +16,8 @@ function GeoInfo() {
   }
 
   return (
-    <div>
-      <div className="text-white">Longitude is {long}</div>
-      <div className="text-white">Latitude is {lat}</div>
+    <div className = "bg-slate-800 w-full p-1 flex flex-row justify-end items-center space-x-1 border border-orange-600">
+      <div className="text-slate-100 font-thin">Longitude: {long} | Latitude: {lat}</div>
     </div>
   )
 }
@@ -33,15 +32,15 @@ function InputBox(props) {
     setInput("")
   }
   return (
-    <form onSubmit={handleSubmit} className="flex-row justify-center items-center">
+    <form onSubmit={handleSubmit} className="flex flex-row w-full bg-slate-100 shadow items-center border border-orange-600 p-2 space-x-1">
       <input
         type="text"
-        className="w-full bg-slate-500"
+        className="bg-slate-250 py-1 px-2 w-full rounded shadow border appearance-none focus:outline-none text-gray-700" 
         value={input}
         onChange={(e) => setInput(e.target.value)}
         autoFocus
       />
-      <button className="text-white">Click Me</button>
+      <button className="bg-slate-500 hover:bg-slate-800 px-2 py-1 whitespace-nowrap text-white font-bold rounded shadow">Click Me</button>
     </form>
   )
 }
@@ -49,9 +48,9 @@ function InputBox(props) {
 
 function Messages(props) {
   return (
-    <ul>{
+    <ul className="bg-slate-100 p-5 w-full h-96 flex-col-reverse overflow-auto snap-y rounded shadow border border-orange-600">{
       props.msg.map((m) => 
-          { return <li key={m.id} className = "text-left text-white">{m.msg}</li>}
+          { return <li key={m.id} className = "text-left text-black">{m.msg}</li>}
         )
       }
     </ul>
@@ -60,7 +59,8 @@ function Messages(props) {
 
 function App() {
 
-  const [msgs, setMsgs] = useState([])
+  const [msgs, setMsgs] = useState([]);
+
 
   function setMessages(message) {
     const newMsg = {
@@ -69,13 +69,13 @@ function App() {
     }
 
 
-    var newMessages = [newMsg, ...msgs]
+    var newMessages = [...msgs, newMsg]
     setMsgs(newMessages)
   }
 
 
   return (
-    <div className="bg-slate-900 h-auto">
+    <div className="bg-black h-full flex flex-col justify-center items-center p-5">
       <GeoInfo />
       <Messages msg={msgs} />
       <InputBox setMsg={setMessages} />
