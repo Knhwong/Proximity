@@ -1,84 +1,86 @@
 import './App.css';
-import React, { useState} from 'react';
+import React, { useState, useEffect} from 'react';
+import io from 'socket.io-client';
+
+import ChatBox from './components/ChatBox.js';
+import GeoInfo from './components/GeoInfo.js'
+import InputBox from './components/InputBox.js';
 
 
-
-function GeoInfo() {
-  const [long, setlong] = useState("")
-  const [lat, setlat] = useState("")
-  const setLongLat = (position) => {
-    setlong(position.coords.latitude)
-    setlat(position.coords.longitude)
-  }
-
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(setLongLat)
-  }
-
-  return (
-    <div className = "bg-slate-800 w-full p-1 flex flex-row justify-end items-center space-x-1 border border-orange-600">
-      <div className="text-slate-100 font-thin">Longitude: {long} | Latitude: {lat}</div>
-    </div>
-  )
-}
-
-function InputBox(props) {
-  const [input, setInput] = useState("")
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    if (input !== "") {
-    props.setMsg(input)
-    }
-    setInput("")
-  }
-  return (
-    <form onSubmit={handleSubmit} className="flex flex-row w-full bg-slate-100 shadow items-center border border-orange-600 p-2 space-x-1">
-      <input
-        type="text"
-        className="bg-slate-250 py-1 px-2 w-full rounded shadow border appearance-none focus:outline-none text-gray-700" 
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        autoFocus
-      />
-      <button className="bg-slate-500 hover:bg-slate-800 px-2 py-1 whitespace-nowrap text-white font-bold rounded shadow">Click Me</button>
-    </form>
-  )
-}
-
-
-function Messages(props) {
-  return (
-    <ul className="bg-slate-100 p-5 w-full h-96 flex-col-reverse overflow-auto snap-y rounded shadow border border-orange-600">{
-      props.msg.map((m) => 
-          { return <li key={m.id} className = "text-left text-black">{m.msg}</li>}
-        )
-      }
-    </ul>
-  )
-}
+const socket = io("ws://localhost:3001");
 
 function App() {
 
-  const [msgs, setMsgs] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [geoLocationEnabled, setGeolocationEnabled] = useState(false);
+  const [position, setPosition] = useState({longitude: "NULL", latitude: "NULL"});
+  const [isConnected, setIsConnected] = useState(socket.connected);
+  const [nearby, setNearby] = useState([]);
 
+  function sendMessages(message) {
+    console.log(messages);
+    if (message && isConnected) {
+      socket.emit('message', {
+          'msg': message,
+          "long": position.Longitude,
+          "lati": position.Latitude,
+          "timestamp": new Date()
+      });
+  }
+  }
 
-  function setMessages(message) {
-    const newMsg = {
-      msg: message,
-      id: msgs.length + 1
+  useEffect(() => {
+    
+    socket.on('connect', () => {
+      setIsConnected(true);
+      console.log("Is Connected");
+    });
+
+    socket.on('disconnect', () => {
+      setIsConnected(false);
+    });
+
+    socket.on('message', (msg) => {
+        setMessages((prevMessages) => {
+          const newMessages = [{ msg: msg, id: prevMessages.length + 1}, ...prevMessages]
+          return newMessages;
+        })
+      
+    })
+
+    
+    if (navigator.geolocation) {
+      setGeolocationEnabled(true);
+      navigator.geolocation.watchPosition( (position) => {
+        const coords = {longitude: position.coords.longitude, latitude: position.coords.latitude}
+        setPosition(coords);
+        if (isConnected) {
+          socket.emit("geo", coords)
+        }
+      })
+    } else {
+      setGeolocationEnabled(false);
     }
 
+    socket.on('geo', (res) => {
+      setNearby(res);
+    })
+    
 
-    var newMessages = [...msgs, newMsg]
-    setMsgs(newMessages)
-  }
+    return () => {
+      socket.off('connect');
+      socket.off('message');
+      socket.off('disconnect');
+    }
+
+  }, [isConnected]);
 
 
   return (
-    <div className="bg-black h-full flex flex-col justify-center items-center p-5">
-      <GeoInfo />
-      <Messages msg={msgs} />
-      <InputBox setMsg={setMessages} />
+    <div className="bg-black h-full flex flex-col justify-center items-center p-3">
+      <GeoInfo position = {position} nearby = {nearby} geoEnabled = {geoLocationEnabled}/>
+      <ChatBox msg = {messages} />
+      <InputBox useMsg = {sendMessages} />
     </div>
   );
 }
