@@ -7,6 +7,7 @@ import GeoInfo from './components/GeoInfo.js'
 import InputBox from './components/InputBox.js';
 
 
+
 const socket = io("ws://localhost:3001");
 
 function App() {
@@ -77,7 +78,7 @@ function App() {
 
 
   return (
-    <div className="bg-black h-full flex flex-col justify-center items-center p-3">
+    <div className="h-full flex flex-col justify-center items-center p-3 bg-black app">
       <GeoInfo position = {position} nearby = {nearby} geoEnabled = {geoLocationEnabled}/>
       <ChatBox msg = {messages} />
       <InputBox useMsg = {sendMessages} />

@@ -22,7 +22,7 @@ function InputBox(props) {
         onChange={(e) => setInput(e.target.value)}
         autoFocus
       />
-      <button className="bg-slate-500 border-slate-500 hover:bg-slate-700 py-1 px-2 h-9 w-12 rounded shadow"><Chevron className = "object-center object-fill" /></button>
+      <button className="bg-slate-500 border-slate-500 hover:bg-slate-700 hover:text-white px-2 h-9 w-12 rounded shadow"><Chevron className = "object-center object-cover " /></button>
     </form>
   )
 }
