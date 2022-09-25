@@ -1,20 +1,30 @@
-const redis = require('redis');
-const client = redis.createClient({
-    socket: {
-        host: '127.0.0.1',
-        port: "6379"
-    }
-});
+const Redis = require('ioredis');
 
-client.on('error', err => {
-    console.log('Error ' + err)
-});
+const client = new Redis()
 
-async function main() {
-    const err = await client.connect();
-    const value = await client.get('loo');
-    console.log(value);
-    return;
+
+async function InsertUser(userID, longitude, latitude) {
+    console.log(userID)
+    await client.geoadd("users", longitude, latitude, userID);
+}
+async function GetNearestUsers(userID, dist) {
+    console.log(userID)
+    return await client.geosearch("users", "FROMMEMBER", userID, "BYRADIUS", dist, "m");
+
 }
 
-main().catch(console.log)
+async function main() {
+    //const err = await client.connect();
+    //await client.set('foo', 5);
+    //const value = await client.get('foo');
+    //console.log(value);
+    //await InsertUser("malzel", 50, 50);
+    //await InsertUser("temer", 50, 50);
+    //await InsertUser("lastat", 51, 51);
+    console.log("Starting");
+    const ret = await GetNearestUsers("malzel", 10)
+    console.log(ret);
+
+}
+
+(async() => { await main() })();

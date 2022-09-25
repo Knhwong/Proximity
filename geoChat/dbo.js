@@ -4,6 +4,7 @@ const url = 'mongodb://localhost:27017';
 class db {
     constructor(url) {
         this.client = new MongoClient(url);
+
     }
     async connect() {
             try {
