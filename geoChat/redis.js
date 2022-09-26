@@ -14,13 +14,9 @@ async function GetNearestUsers(userID, dist) {
 }
 
 async function main() {
-    //const err = await client.connect();
-    //await client.set('foo', 5);
-    //const value = await client.get('foo');
-    //console.log(value);
-    //await InsertUser("malzel", 50, 50);
-    //await InsertUser("temer", 50, 50);
-    //await InsertUser("lastat", 51, 51);
+    await InsertUser("malzel", 50, 50);
+    await InsertUser("temer", 50, 50);
+    await InsertUser("lastat", 51, 51);
     console.log("Starting");
     const ret = await GetNearestUsers("malzel", 10)
     console.log(ret);
