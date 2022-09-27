@@ -1,26 +1,44 @@
 const Redis = require('ioredis');
 
-const client = new Redis()
+//const client = new Redis()
 
+class rd {
+    constructor() {
+        this.client = new Redis();
+    }
 
-async function InsertUser(userID, longitude, latitude) {
-    console.log(userID)
-    await client.geoadd("users", longitude, latitude, userID);
+    async InsertUser(userID, longitude, latitude) {
+        await this.client.geoadd("users", longitude, latitude, userID);
+    }
+
+    async RemoveUser(userID) {
+        await this.client.zrem("users", userID);
+
+    }
+
+    async GetNearestUsers(userID, dist) {
+        const users = await this.client.geosearch("users", "FROMMEMBER", userID, "BYRADIUS", dist, "m");
+        return users;
+    }
 }
-async function GetNearestUsers(userID, dist) {
-    console.log(userID)
-    return await client.geosearch("users", "FROMMEMBER", userID, "BYRADIUS", dist, "m");
 
-}
+
+
 
 async function main() {
-    await InsertUser("malzel", 50, 50);
-    await InsertUser("temer", 50, 50);
-    await InsertUser("lastat", 51, 51);
-    console.log("Starting");
-    const ret = await GetNearestUsers("malzel", 10)
-    console.log(ret);
+
+    const redis = new rd();
+    await redis.InsertUser("malzel", 50, 50);
+    await redis.InsertUser("temer", 50, 50);
+    await redis.InsertUser("lastat", 51, 51);
+    try {
+        const ret = await redis.GetNearestUsers("hzel", 10)
+        console.log(ret);
+    } catch (err) {
+        console.error("GetNearest Error: ", err);
+    }
 
 }
 
-(async() => { await main() })();
+//(async() => { await main() })();
+module.exports.rd = new rd();

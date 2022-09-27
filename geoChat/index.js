@@ -8,6 +8,7 @@ const io = new Server(server, {
     }
 });
 const { db } = require("./dbo.js")
+const { rd } = require("./redis.js")
 
 
 io.on('connection', (socket) => {
@@ -16,41 +17,37 @@ io.on('connection', (socket) => {
     socket.on('geo', async(res) => {
         socket.longitude = res.longitude;
         socket.latitude = res.latitude;
-        const user = await db.InsertOrUpdate(socket);
-        const nearest = await db.FindNearest(user, 100);
-
-
-        /*
-        If we use Joining to Rooms, we will need to backtrack to leave Rooms if we get out of range
-        Hence why just setting the entire array of nearestSockets is alot more hassle free.
-        */
-
-        socket.nearestSockets = nearest.map((user) => { return user.id })
-        console.log(`Nearest Sockets to ${socket.id} are: ${socket.nearestSockets}`);
-        socket.emit('geo', socket.nearestSockets);
+        try {
+            const user = await rd.InsertUser(socket.id, res.longitude, res.latitude);
+            //Distance Control TBD
+            const nearest = await rd.GetNearestUsers(socket.id, 10)
+            socket.nearestSockets = nearest;
+            //console.log(`Nearest Sockets to ${socket.id} are: ${socket.nearestSockets}`);
+            socket.emit('geo', socket.nearestSockets);
+        } catch (err) {
+            console.error(err);
+        }
     })
 
     socket.on('message', async(msg) => {
-
         //NearestSockets contains self so you don't need to do socket.emit here.
         console.log(`${socket.id} says ${msg.msg}.`);
         socket.to(socket.nearestSockets).emit('message', msg.msg);
         socket.emit('message', msg.msg);
-        //io.emit('message', msg.msg);
-        //await db.InsertMessage(socket, msg.msg, msg.timestamp)
     });
 
 
     socket.on('disconnect', async() => {
-        await db.Remove(socket)
-        console.log('User Disconnected ' + socket.id);
+        try {
+            await rd.RemoveUser(socket.id);
+            console.log('User Disconnected ' + socket.id);
+        } catch (err) {
+            console.error(err);
+        }
     });
 })
 
 server.listen(3001, async() => {
     await db.connect();
-    await db.ShowAll();
-    //Clear Cache
-    await db.Remove({})
     console.log("Listening on Port 3001")
 });
