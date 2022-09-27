@@ -18,6 +18,7 @@ function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [nearby, setNearby] = useState([]);
 
+  // Sends Messages to Server; Passed down to InputBox as props.
   function sendMessages(message) {
     console.log(messages);
     if (message && isConnected) {
@@ -41,6 +42,7 @@ function App() {
       setIsConnected(false);
     });
 
+    // setMessages is the state that is used to display the messages on the chatBox component
     socket.on('message', (msg) => {
         setMessages((prevMessages) => {
           const newMessages = [{ msg: msg, id: prevMessages.length + 1}, ...prevMessages]
@@ -49,7 +51,8 @@ function App() {
       
     })
 
-    
+    // Getting Coordinates
+    // Also used to update top bar
     if (navigator.geolocation) {
       setGeolocationEnabled(true);
       navigator.geolocation.watchPosition( (position) => {
@@ -63,6 +66,7 @@ function App() {
       setGeolocationEnabled(false);
     }
 
+    // Will send coordinates to server every time there is an update
     socket.on('geo', (res) => {
       setNearby(res);
     })
