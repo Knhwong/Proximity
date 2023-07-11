@@ -8,6 +8,7 @@ const client = new MongoClient(url);
 
 // Database Name
 const dbName = 'geoPoints';
+// Demo code!
 const points = [{
         uid: "1",
         loc: {
