@@ -6,7 +6,6 @@ const http = require('http');
 const socketIO = require('socket.io');
 const { Server } = require("socket.io");
 require('dotenv').config()
-const { db } = require("./dbo.js")
 const { rd } = require("./redis.js")
 
 
@@ -63,6 +62,5 @@ io.on('connection', (socket) => {
 })
 
 server.listen(3001, async() => {
-    await db.connect();
     console.log("Listening on Port 3001")
 });
