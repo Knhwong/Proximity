@@ -5,17 +5,9 @@ import io from 'socket.io-client';
 import ChatBox from './components/ChatBox.js';
 import GeoInfo from './components/GeoInfo.js'
 import InputBox from './components/InputBox.js';
+console.log(process.env.REACT_APP_SOCKET)
 
-import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
-
-import { useGeolocated } from "react-geolocated";
-
-
-mapboxgl.accessToken = 'pk.eyJ1Ijoia25od29uZyIsImEiOiJjbGl6cmUxMTgwdXB0M3NxZmxxZTFsNXZ1In0.u0RMgdEBjWdEjJiHHgvQ3w';
-
-
-
-const socket = io("ws://localhost:3001");
+const socket = io();
 
 function App() {
   
