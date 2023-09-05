@@ -1,17 +1,26 @@
+const express = require('express');
+const path = require('path');
+const cors = require('cors');
+const app = express();
 const http = require('http');
-const { Server } = require("socket.io")
-const server = http.createServer();
-const io = new Server(server, {
-    cors: {
-        origin: "http://localhost:3000",
-        methods: ["GET", "POST"]
-    }
-});
+const socketIO = require('socket.io');
+const { Server } = require("socket.io");
+require('dotenv').config()
 const { db } = require("./dbo.js")
 const { rd } = require("./redis.js")
 
 
-
+app.use(cors({
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"]
+}))
+app.use(express.static(path.join(__dirname, "..", "client", "build"))); 
+app.get('/', function (req, res) {
+    res.sendFile(path.join(__dirname, "..", "client", "build", "index.html"));
+});
+    
+const server = http.createServer(app);
+const io = new Server(server)
 
 io.on('connection', (socket) => {
     console.log("Socket Connected: " + socket.id);

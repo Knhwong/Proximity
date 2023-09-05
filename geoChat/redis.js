@@ -2,7 +2,13 @@ const Redis = require('ioredis');
 
 class rd {
     constructor() {
-        this.client = new Redis();
+        this.client = new Redis(
+            {
+                password: process.env.REDIS_PASSWORD,
+                host: process.env.REDIS_HOST,
+                port: process.env.REDIS_PORT,
+            }
+        );
     }
 
     async InsertUser(userID, longitude, latitude) {

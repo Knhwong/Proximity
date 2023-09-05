@@ -5,10 +5,9 @@ import io from 'socket.io-client';
 import ChatBox from './components/ChatBox.js';
 import GeoInfo from './components/GeoInfo.js'
 import InputBox from './components/InputBox.js';
+console.log(process.env.REACT_APP_SOCKET)
 
-
-
-const socket = io("ws://localhost:3001");
+const socket = io();
 
 function App() {
 
